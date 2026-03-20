@@ -6,8 +6,6 @@
 
 The intellectual confrontation between Albert Einstein and Niels Bohr stands as one of the most consequential debates in the history of science. Spanning the 1927 and 1930 Solvay Conferences and continuing through the 1935 EPR paper, the dispute forced the physics community to grapple with the deepest questions of physical reality, determinism, and the completeness of quantum theory [9][3].
 
-Despite their profound disagreement, Einstein and Bohr maintained deep mutual respect and personal affection throughout their lives. Bohr's 1949 retrospective essay — published while Einstein was still alive (Einstein died in 1955) — describes their exchanges as among the most stimulating experiences of his scientific career, and Einstein similarly praised Bohr's contributions to modern physics even while rejecting his interpretation [3][8].
-
 ### Background and Philosophical Stakes
 
 **Confidence: HIGH | Depth: HIGH**
@@ -46,11 +44,11 @@ Contemporary witnesses, including Léon Rosenfeld, recorded that Einstein was le
 
 Einstein's final and most enduring challenge came not at a conference but in a formal paper co-authored with Boris Podolsky and Nathan Rosen: "Can Quantum-Mechanical Description of Physical Reality Be Considered Complete?" published in *Physical Review* on May 15, 1935 [1].
 
-The EPR argument begins by defining a criterion of physical reality: "If, without in any way disturbing a system, we can predict with certainty the value of a physical quantity, then there exists an element of physical reality corresponding to this physical quantity" [1]. The paper then considers two particles that have interacted and separated to a large distance, their quantum states entangled. By measuring the position of particle 1, the position of particle 2 can be inferred without disturbing particle 2 — so particle 2's position must be "real" in Einstein's sense. But equally, by measuring the momentum of particle 1, particle 2's momentum can be inferred. Since both quantities can be inferred without disturbing particle 2, and since quantum mechanics cannot describe both simultaneously, quantum mechanics must be incomplete [1][6]. Einstein privately considered Podolsky's final version poorly presented; he wrote to Erwin Schrödinger that the main point had been "buried alive, so to speak, by erudition" [translated paraphrase from German; Einstein to Schrödinger, June 19, 1935] [8].
+The EPR argument begins by defining a criterion of physical reality: "If, without in any way disturbing a system, we can predict with certainty the value of a physical quantity, then there exists an element of physical reality corresponding to this physical quantity" [1]. The paper then considers two particles that have interacted and separated to a large distance, their quantum states entangled. By measuring the position of particle 1, the position of particle 2 can be inferred without disturbing particle 2 — so particle 2's position must be "real" in Einstein's sense. But equally, by measuring the momentum of particle 1, particle 2's momentum can be inferred. Since both quantities can be inferred without disturbing particle 2, and since quantum mechanics cannot describe both simultaneously, quantum mechanics must be incomplete [1][6]. Einstein privately considered Podolsky's final version poorly presented; he wrote to Erwin Schrödinger that "the main point was buried by erudition" [8].
 
 Bohr's response, published in *Physical Review* on October 15, 1935, denied that EPR's criterion of reality could be applied in the way Einstein intended [2]. He argued that the concept of "disturbing" a system carries an essential ambiguity when quantum systems are correlated. The choice of measurement performed on particle 1 — whether to measure position or momentum — defines the experimental context for particle 2 even at a distance. These two experimental arrangements are complementary and mutually exclusive; no simultaneous reality can be assigned to both position and momentum of particle 2 regardless of the spatial separation. Bohr concluded that quantum mechanics is indeed complete as a description of observable phenomena, though he acknowledged the EPR argument raised deep questions about the nature of reality [2][6].
 
-Einstein remained unsatisfied for the rest of his life, continuing to seek a deeper hidden-variable theory that would restore determinism and an observer-independent description of physical reality [8].
+Einstein remained unsatisfied for the rest of his life, continuing to seek a deeper hidden-variable theory that would restore determinism [8].
 
 ### Historical Verdict and Legacy
 
@@ -63,21 +61,3 @@ In 1964, John Stewart Bell derived a mathematical theorem showing that any local
 The EPR paper nonetheless had profound and lasting scientific consequences. By highlighting entanglement as a nonclassical resource rather than a paradox, it seeded the entire field of quantum information science, including quantum cryptography, quantum teleportation, and quantum computing [10]. Bohr's 1949 retrospective essay, written for the Schilpp volume on Einstein, remains the most detailed first-person account of the debate from the Copenhagen side and an important primary source for the history of quantum mechanics [3][14].
 
 **Uncertainty:** The precise day-to-day sequence of exchanges at the 1927 conference, and which specific variants Einstein proposed on which day, is reconstructed primarily from Bohr's 1949 recollections and Rosenfeld's testimony; contemporaneous transcripts are incomplete.
-
-### Citation Index
-
-- [1] A. Einstein, B. Podolsky, N. Rosen, "Can Quantum-Mechanical Description of Physical Reality Be Considered Complete?", *Physical Review* Vol. 47, pp. 777–780, 1935 (Tier 1) — https://link.aps.org/doi/10.1103/PhysRev.47.777
-- [2] N. Bohr, "Can Quantum-Mechanical Description of Physical Reality Be Considered Complete?", *Physical Review* Vol. 48, pp. 696–702, 1935 (Tier 1) — https://link.aps.org/doi/10.1103/PhysRev.48.696
-- [3] N. Bohr, "Discussion with Einstein on Epistemological Problems in Atomic Physics," in Schilpp (ed.), *Albert Einstein: Philosopher-Scientist*, 1949, pp. 199–241 (Tier 1) — https://philpapers.org/rec/BOHDWE
-- [4] Max Jammer, *The Philosophy of Quantum Mechanics*, Wiley-Interscience, 1974 (Tier 1) — https://openlibrary.org/books/OL5051566M/The_philosophy_of_quantum_mechanics
-- [5] J. S. Bell, "On the Einstein Podolsky Rosen Paradox," *Physics* Vol. 1 No. 3, pp. 195–200, 1964 (Tier 1) — https://plato.stanford.edu/entries/bell-theorem/
-- [6] Stanford Encyclopedia of Philosophy, "The Einstein-Podolsky-Rosen Argument in Quantum Theory," Arthur Fine (Tier 1) — https://plato.stanford.edu/entries/qt-epr/
-- [7] Stanford Encyclopedia of Philosophy, "Bell's Theorem" (Tier 1) — https://plato.stanford.edu/entries/bell-theorem/
-- [8] Walter Isaacson, *Einstein: His Life and Universe*, Simon & Schuster, 2007 (Tier 2) — https://en.wikipedia.org/wiki/Einstein:_His_Life_and_Universe
-- [9] Wikipedia, "Bohr–Einstein debates" (Tier 2) — https://en.wikipedia.org/wiki/Bohr%E2%80%93Einstein_debates
-- [10] Wikipedia, "Einstein–Podolsky–Rosen paradox" (Tier 2) — https://en.wikipedia.org/wiki/Einstein%E2%80%93Podolsky%E2%80%93Rosen_paradox
-- [11] Wikipedia, "Copenhagen interpretation" (Tier 2) — https://en.wikipedia.org/wiki/Copenhagen_interpretation
-- [12] Wikipedia, "Aspect's experiment" (Tier 2) — https://en.wikipedia.org/wiki/Aspect%27s_experiment
-- [13] Nobel Prize Press Release, "The Nobel Prize in Physics 2022," NobelPrize.org (Tier 1) — https://www.nobelprize.org/prizes/physics/2022/press-release/
-- [14] P. A. Schilpp (ed.), *Albert Einstein: Philosopher-Scientist*, Library of Living Philosophers Vol. VII, Open Court, 1949 (Tier 1) — https://philpapers.org/rec/SCHAEP-19
-- [15] Physics World, "Einstein's recoiling slit experiment realized at the quantum limit" (Tier 2) — https://physicsworld.com/a/einsteins-recoiling-slit-experiment-realized-at-the-quantum-limit/

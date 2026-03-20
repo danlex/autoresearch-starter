@@ -1,68 +1,72 @@
-# Autoresearch Starter Kit
+# Autoresearch
 
-Autonomous AI research system. Define a subject, run one command, get a verified research document with citations.
+Autonomous AI research system. Define a subject, run one command, get a verified research document with inline citations and a published website.
 
-## Quick Start
+**Live demo:** [danlex.github.io/autoresearch](https://danlex.github.io/autoresearch/) (Andrej Karpathy)
 
-```bash
-# 1. Clone this repo (or use "Use this template" on GitHub)
-git clone https://github.com/danlex/autoresearch-starter.git
-cd autoresearch-starter
-
-# 2. Edit goal.md with your research subject
-nano goal.md
-
-# 3. Edit research.config.json with your details
-nano research.config.json
-
-# 4. Run setup
-bash start.sh
-
-# 5. Start research
-NO_JUDGES=1 bash research.sh
-```
-
-## What It Does
-
-1. **Generates research questions** from your `goal.md` (30-50 tasks as GitHub Issues)
-2. **Researches each question** using Claude Code (web search + write)
-3. **Writes findings** with inline `[N]` citations to section files
-4. **Three judges review** every finding (Evidence, Consistency, Completeness)
-5. **Publishes** a static website with all findings, sources, and progress
-
-## Files You Edit
-
-| File | What to do |
-|---|---|
-| `goal.md` | Define your research subject, areas of inquiry, and completion criteria |
-| `research.config.json` | Your name, company, site URL, accent color, optional timeline/videos |
-| `.env` | Your `ANTHROPIC_API_KEY` (created by `start.sh`) |
-
-## Files the System Creates
-
-| File | Purpose |
-|---|---|
-| `sections/*.md` | Research findings per topic |
-| `document.md` | Index with coverage stats |
-| `changelog.md` | Research activity log |
-| `docs/` | Static website (deploy to GitHub Pages) |
-
-## Commands
+## Install
 
 ```bash
-bash start.sh              # One-time setup
-bash research.sh           # Run research loop (Ctrl+C to stop)
-bash watch.sh              # Monitor progress
-bash explode-goal.sh       # Generate more research tasks
-bash propose.sh accept     # Accept proposed tasks
-bash autoresearch.sh       # Check current score
-cd site && npm run dev     # Preview website locally
-cd site && npm run build   # Build website
+git clone https://github.com/danlex/autoresearch-starter.git my-research
+cd my-research
+bash install.sh
 ```
+
+The installer handles everything: dependencies (Node.js, GitHub CLI, Claude Code), authentication, task generation, and website build. Works on macOS and Linux.
+
+## How It Works
+
+```
+goal.md (you write)
+    |
+    v
+explode-goal.sh --> 30-50 GitHub Issues (research questions)
+    |
+    v
+research.sh --> Claude Code searches the web, writes findings with [N] citations
+    |
+    v
+3 judges --> Evidence, Consistency, Completeness review
+    |
+    v
+PR merged --> website rebuilt --> score climbs toward 100%
+```
+
+Every claim has inline citations. Three independent judges review all content. The entire process is transparent on GitHub.
+
+## Quick Reference
+
+| Command | What it does |
+|---|---|
+| `bash install.sh` | Full setup (deps, auth, tasks, site) |
+| `bash research.sh` | Run research loop |
+| `bash watch.sh` | Monitor progress |
+| `bash autoresearch.sh` | Check score |
+| `cd site && npm run dev` | Preview website |
+| `Ctrl+C` | Stop research (safe, resumes from where it left off) |
 
 ## Configuration
 
-### research.config.json
+### 1. Research Subject (`goal.md`)
+
+```markdown
+# Research Goal: Albert Einstein
+
+## Subject
+Albert Einstein — theoretical physicist, Nobel laureate.
+
+## What I Want to Understand
+- Scientific contributions and impact
+- Education and intellectual development
+- Views on philosophy and politics
+- Key relationships and collaborations
+
+## Completion Criteria
+- Every finding backed by 2+ sources
+- All sections at HIGH confidence
+```
+
+### 2. Website & Author (`research.config.json`)
 
 ```json
 {
@@ -72,37 +76,40 @@ cd site && npm run build   # Build website
   "author": {
     "name": "Your Name",
     "company": "Your Company",
-    "company_url": "https://example.com",
     "github": "yourusername"
   },
   "repo": "yourusername/your-repo",
-  "site_url": "https://yourusername.github.io/your-repo",
-  "timeline": [],
-  "videos": {}
+  "site_url": "https://yourusername.github.io/your-repo"
 }
 ```
 
-### Environment Variables
+### 3. Environment (`.env`)
 
 | Variable | Default | Description |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | required | Your Claude API key |
-| `MAX_ITERATIONS` | 100 | Max research iterations per session |
-| `NO_JUDGES` | 0 | Set 1 to auto-merge (faster, no review) |
+| `ANTHROPIC_API_KEY` | required | Claude API key (or use `CLAUDE_CODE_OAUTH_TOKEN`) |
+| `MAX_ITERATIONS` | 100 | Iterations per session |
+| `NO_JUDGES` | 0 | `1` = auto-merge (fast), `0` = three-judge review |
 | `AUTO_ACCEPT` | 0 | Auto-accept proposed tasks: `high`, `medium`, `all` |
 
 ## Deploy Website
 
-1. Go to repo Settings > Pages > Source: Deploy from branch > `/docs`
-2. The site rebuilds automatically after each research iteration
+1. Push to GitHub
+2. Settings > Pages > Source: `/docs` branch `main`
+3. Site rebuilds after each research iteration
 
-## Built With
+## Tech Stack
 
-- [Claude Code](https://claude.ai/claude-code) — AI research engine
-- [Astro](https://astro.build) + [Svelte](https://svelte.dev) + [Tailwind](https://tailwindcss.com) — Website
-- GitHub Issues — Task management
-- GitHub Pages — Hosting
+- **Research:** [Claude Code](https://claude.ai/claude-code) CLI (`claude -p`)
+- **Website:** [Astro](https://astro.build) + [Svelte](https://svelte.dev) + [Tailwind CSS](https://tailwindcss.com)
+- **Tasks:** GitHub Issues with priority labels
+- **Hosting:** GitHub Pages (static)
+- **Effects:** WebGL particle system, scroll animations, glassmorphism
 
 ## Author
 
 Built by [Alexandru DAN](https://github.com/danlex), CEO [TVL Tech](https://www.tvl.tech).
+
+## License
+
+MIT
