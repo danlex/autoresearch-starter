@@ -1,0 +1,15 @@
+status.json
+research.log
+feedback.md
+pause.flag
+node_modules/
+.env
+*.pdf
+.prompt-*.txt
+backend.log
+backend/dist/
+backend/node_modules/
+site/node_modules/
+site/.astro/
+site/node_modules/
+site/.astro/

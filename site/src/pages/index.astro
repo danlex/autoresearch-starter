@@ -1,0 +1,204 @@
+---
+import Layout from '../layouts/Layout.astro';
+import LiteYouTube from '../components/LiteYouTube.svelte';
+import SourceDashboard from '../components/SourceDashboard.svelte';
+import { getSections, getHeader, getScore, getSectionStats, parseSources, getSourceDashboard } from '../lib/data';
+import { getConfig } from '../lib/config';
+import { md2html } from '../lib/markdown';
+
+const config = getConfig();
+const _b = import.meta.env.BASE_URL;
+const base = _b.endsWith('/') ? _b : _b + '/';
+const SECTIONS = getSections();
+const header = getHeader();
+const { score } = getScore();
+const allStats = SECTIONS.map(s => getSectionStats(s));
+const totalWords = allStats.reduce((sum, s) => sum + s.words, 0);
+const totalReadingMin = Math.ceil(totalWords / 230);
+const dashboard = getSourceDashboard();
+
+const tocEntries: { id: string; label: string; level: 'h2' | 'h3' }[] = [];
+for (const stats of allStats) {
+  tocEntries.push({ id: stats.slug, label: stats.name, level: 'h2' });
+  for (const sub of stats.subsections) {
+    const anchor = sub.toLowerCase().replace(/<[^>]+>/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').substring(0, 60);
+    tocEntries.push({ id: anchor, label: sub.replace(/\*\*/g, ''), level: 'h3' });
+  }
+}
+tocEntries.push({ id: 'sources-section', label: 'Sources', level: 'h2' });
+tocEntries.push({ id: 'about-section', label: 'About', level: 'h2' });
+
+let sourcesRaw = parseSources().raw;
+sourcesRaw = sourcesRaw
+  .replace(/^(- \[\d+\].*)(Tier 1)(.*$)/gm, '$1<span class="source-t1">Tier 1</span>$3')
+  .replace(/^(- \[\d+\].*)(Tier 2)(.*$)/gm, '$1<span class="source-t2">Tier 2</span>$3')
+  .replace(/^(- \[\d+\].*)(Tier 3)(.*$)/gm, '$1<span class="source-t3">Tier 3</span>$3');
+
+const metaDesc = `Comprehensive autonomous research on ${config.subject} — ${config.tagline}. ${score}% complete with ${header.sources} verified sources. By ${config.author.name}.`;
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ScholarlyArticle",
+  "name": `${config.subject} — Research Document`,
+  "author": { "@type": "Person", "name": config.author.name, "jobTitle": config.author.title, "affiliation": { "@type": "Organization", "name": config.author.company, "url": config.author.company_url } },
+  "description": metaDesc,
+  "url": config.site_url,
+  "about": { "@type": "Thing", "name": config.subject },
+  "dateModified": header.updated,
+  "isAccessibleForFree": true,
+};
+---
+
+<Layout title="Research Document" description={metaDesc} activePage="index" jsonLd={jsonLd}>
+  <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight my-6 bg-gradient-to-br from-ar-amber to-ar-red bg-clip-text text-transparent [-webkit-text-fill-color:transparent]">
+    {config.subject} — Research Document
+  </h1>
+
+  <div class="flex gap-8 items-center my-8 flex-wrap">
+    {config.image && (
+      <img src={`${base}${config.image}`} alt={config.subject} fetchpriority="high" width="130" height="130" class="w-[130px] h-[130px] rounded-full border-[3px] border-transparent object-cover shadow-[0_0_30px_rgba(245,158,11,0.15)]" style="background-image: linear-gradient(135deg, #f59e0b, #ef4444); background-origin: border-box; background-clip: content-box, border-box;">
+    )}
+    <div class="flex-1 min-w-[250px]">
+      <p class="text-lg m-0 mb-2"><strong class="text-text-primary">{config.subject}</strong></p>
+      <p class="text-dim m-0 text-[0.95rem]">{config.tagline}</p>
+    </div>
+  </div>
+
+  <p class="text-[0.95rem] text-dim my-4 mb-8">
+    This document was autonomously researched using <a href={`https://github.com/${config.repo}`} class="text-ar-blue hover:text-ar-cyan no-underline hover:underline">Autoresearch</a> —
+    an AI-powered system that generates research questions, searches the web, writes findings with inline citations,
+    and verifies everything through a three-judge review panel. Built by <strong class="text-text-primary">{config.author.name}</strong>{config.author.company && <>, {config.author.title} {config.author.company}</>}.
+  </p>
+
+  <!-- Bento Stats -->
+  <div class="bento-stats my-8 stagger-reveal">
+    <div class="glass-card glow-border rounded-2xl p-6 flex flex-col items-center justify-center text-center scroll-reveal">
+      <div class="text-6xl font-extrabold font-mono tracking-tight text-ar-green">{score}%</div>
+      <div class="text-dim text-xs mt-2 uppercase tracking-[0.1em] font-medium">Research Score</div>
+      <div class="w-full bg-white/5 rounded-full overflow-hidden h-1.5 mt-4">
+        <div class="h-full bg-gradient-to-r from-ar-green to-ar-cyan rounded-full transition-[width] duration-1000" style={`width: ${score}%`}></div>
+      </div>
+    </div>
+    <div class="glass-card glow-border rounded-2xl p-5 flex flex-col items-center justify-center text-center scroll-reveal">
+      <div class="text-3xl font-extrabold font-mono tracking-tight">{header.tasks}</div>
+      <div class="text-dim text-xs mt-1.5 uppercase tracking-[0.1em] font-medium">Tasks</div>
+    </div>
+    <div class="glass-card glow-border rounded-2xl p-5 flex flex-col items-center justify-center text-center scroll-reveal">
+      <div class="text-3xl font-extrabold font-mono tracking-tight">{header.sources}</div>
+      <div class="text-dim text-xs mt-1.5 uppercase tracking-[0.1em] font-medium">Sources</div>
+    </div>
+    <div class="glass-card glow-border rounded-2xl p-5 flex flex-col items-center justify-center text-center scroll-reveal">
+      <div class="text-xl font-extrabold font-mono tracking-tight">{header.updated}</div>
+      <div class="text-dim text-xs mt-1.5 uppercase tracking-[0.1em] font-medium">Last Updated</div>
+    </div>
+  </div>
+
+  <!-- Timeline (only if configured) -->
+  {config.timeline.length > 0 && (
+    <div class="timeline flex items-center p-3 px-4 my-2 mb-8 glass-panel rounded-2xl overflow-x-auto gap-0 scroll-reveal">
+      {config.timeline.map((item, i) => (
+        <>
+          <div class="timeline-item flex-1 min-w-0">
+            <a href={`#${item.section}`} class="flex items-center gap-2 no-underline text-text-primary p-2 px-2.5 rounded-lg transition-colors hover:bg-surface-hover whitespace-nowrap">
+              <span class="w-2.5 h-2.5 rounded-full shrink-0" style={`background: var(--color-ar-${item.color || 'amber'})`}></span>
+              <span class="font-mono text-[0.7rem] font-bold shrink-0" style={`color: var(--color-ar-${item.color || 'amber'})`}>{item.year}</span>
+              <span class="tl-title text-[0.78rem] text-text-secondary font-medium">{item.title}</span>
+            </a>
+          </div>
+          {i < config.timeline.length - 1 && <span class="tl-connector w-5 h-0.5 bg-border shrink-0"></span>}
+        </>
+      ))}
+    </div>
+  )}
+
+  <!-- Section cards -->
+  <h2 class="text-2xl font-bold tracking-tight mt-12 mb-4 pb-2 border-b border-border">Sections</h2>
+  <div class="bento-sections my-6 mb-10 stagger-reveal">
+    {SECTIONS.map(s => (
+      <a href={`#${s.slug}`} class="glass-card glow-border rounded-2xl p-5 no-underline text-text-primary block scroll-reveal">
+        <strong class="text-ar-amber text-[0.95rem]">{s.name}</strong>
+      </a>
+    ))}
+  </div>
+
+  <!-- Section bar -->
+  <div class="section-bar flex gap-1 p-1.5 glass-panel rounded-2xl mb-10 overflow-x-auto sticky top-[4.5rem] z-40" id="section-bar">
+    {SECTIONS.map(s => (
+      <a href={`#${s.slug}`} class="whitespace-nowrap text-dim no-underline text-[0.8rem] font-medium py-2 px-3.5 rounded-lg transition-all shrink-0 hover:text-text-secondary hover:bg-surface-hover [&.active-section]:text-ar-amber [&.active-section]:bg-[rgba(245,158,11,0.1)] [&.active-section]:font-semibold">{s.name}</a>
+    ))}
+    <a href="#sources-section" class="whitespace-nowrap text-dim no-underline text-[0.8rem] font-medium py-2 px-3.5 rounded-lg transition-all shrink-0 hover:text-text-secondary hover:bg-surface-hover [&.active-section]:text-ar-amber [&.active-section]:bg-[rgba(245,158,11,0.1)] [&.active-section]:font-semibold">Sources</a>
+    <a href="#about-section" class="whitespace-nowrap text-dim no-underline text-[0.8rem] font-medium py-2 px-3.5 rounded-lg transition-all shrink-0 hover:text-text-secondary hover:bg-surface-hover [&.active-section]:text-ar-amber [&.active-section]:bg-[rgba(245,158,11,0.1)] [&.active-section]:font-semibold">About</a>
+  </div>
+
+  {totalWords > 0 && (
+    <p class="inline-block font-mono text-[0.7rem] font-medium text-dim bg-surface border border-border px-3 py-1 rounded-full tracking-wide mb-6">
+      {totalReadingMin} min read · {totalWords.toLocaleString()} words
+    </p>
+  )}
+
+  <!-- Research content -->
+  <div class="prose">
+    {allStats.map(stats => {
+      if (!stats.content.trim()) return null;
+      const sectionHtml = md2html(stats.content);
+      const videos = config.videos[stats.slug] || [];
+      const paragraphs = stats.content.split('\n').filter((l: string) => l.trim() && !l.startsWith('#') && !l.startsWith('**Confidence') && !l.startsWith('**Uncertainty') && !l.startsWith('>') && l.length > 80);
+      const calloutText = paragraphs.length > 0 ? paragraphs[0].substring(0, 300).replace(/\[\d+\]/g, '') + '...' : '';
+      return (
+        <div id={stats.slug} class="scroll-reveal">
+          <div class="flex gap-1.5 flex-wrap my-1.5">
+            <span class="font-mono text-[0.65rem] font-medium px-2 py-0.5 rounded-full bg-surface border border-border text-dim">{stats.words} words</span>
+            <span class="font-mono text-[0.65rem] font-medium px-2 py-0.5 rounded-full bg-surface border border-border text-dim">{stats.citations.length} citations</span>
+            <span class="font-mono text-[0.65rem] font-medium px-2 py-0.5 rounded-full bg-surface border border-border text-dim">{stats.readingMinutes} min read</span>
+            {stats.highConf > 0 && <span class="font-mono text-[0.65rem] font-medium px-2 py-0.5 rounded-full bg-surface border border-border text-ar-green">{stats.highConf} HIGH</span>}
+            {stats.medConf > 0 && <span class="font-mono text-[0.65rem] font-medium px-2 py-0.5 rounded-full bg-surface border border-border text-ar-amber">{stats.medConf} MED</span>}
+          </div>
+          {calloutText && <div class="callout" set:html={calloutText} />}
+          <Fragment set:html={sectionHtml} />
+          {videos.length > 0 && (
+            <div>
+              <h3 style="color: var(--color-dim); margin-top: 2rem;">Related Videos</h3>
+              <div class="video-grid grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5 my-6">
+                {videos.map(v => <LiteYouTube videoId={v.id} title={v.title} desc={v.desc} />)}
+              </div>
+            </div>
+          )}
+          <hr class="border-0 border-t border-border my-12" />
+        </div>
+      );
+    })}
+  </div>
+
+  <!-- Sources -->
+  <div id="sources-section" class="prose">
+    <SourceDashboard total={dashboard.total} bySection={dashboard.bySection} client:visible />
+    <Fragment set:html={md2html(sourcesRaw)} />
+  </div>
+
+  <!-- About -->
+  <hr class="border-0 border-t border-border my-12" />
+  <div id="about-section">
+    <h2 class="text-2xl font-bold tracking-tight mt-12 mb-4 pb-2 border-b border-border">About This Research</h2>
+    <p class="text-[0.95rem] text-text-secondary leading-relaxed">This document was produced autonomously by <a href={`https://github.com/${config.repo}`} class="text-ar-blue hover:text-ar-cyan no-underline hover:underline">Autoresearch</a> — an open-source AI research system.</p>
+    <div class="grid grid-cols-2 gap-4 my-6 max-md:grid-cols-1">
+      <div class="glass-card rounded-2xl p-6">
+        <h3 class="text-ar-amber mt-0 mb-1 text-lg font-semibold">{config.author.name}</h3>
+        {config.author.title && <p class="text-text-secondary m-0 mb-2 text-[0.85rem] font-medium">{config.author.title}, {config.author.company}</p>}
+        {config.author.github && <p class="mt-2 text-[0.85rem]"><a href={`https://github.com/${config.author.github}`} class="text-ar-blue hover:text-ar-cyan no-underline hover:underline">GitHub</a></p>}
+      </div>
+      {config.author.logo && (
+        <a href={config.author.company_url} target="_blank" rel="noopener" class="glass-card rounded-2xl p-6 no-underline block">
+          <img src={`${base}${config.author.logo}`} alt={config.author.company} class="h-8 mb-3" />
+          {config.author.email && <p class="text-dim text-[0.85rem] m-0">{config.author.email}</p>}
+        </a>
+      )}
+    </div>
+  </div>
+
+  <!-- TOC sidebar -->
+  <aside class="toc-sidebar">
+    <div class="toc-title">Contents</div>
+    {tocEntries.map(entry => (
+      <a href={`#${entry.id}`} class={entry.level === 'h2' ? 'toc-h2' : 'toc-h3'}>{entry.label}</a>
+    ))}
+  </aside>
+</Layout>

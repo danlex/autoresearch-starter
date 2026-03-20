@@ -1,0 +1,63 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getSections, getHeader, getScore, getStatus, getChangelog, getSectionStats } from '../lib/data';
+import { getConfig } from '../lib/config';
+import { md2html } from '../lib/markdown';
+
+const config = getConfig();
+const base = (import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : import.meta.env.BASE_URL + '/');
+const header = getHeader();
+const { score, breakdown } = getScore();
+const status = getStatus();
+const changelog = getChangelog();
+const SECTIONS = getSections();
+const allStats = SECTIONS.map(s => getSectionStats(s));
+const progressDesc = `Research progress on ${config.subject}: ${score}% complete, ${header.tasks} tasks, ${header.sources} sources.`;
+---
+
+<Layout title="Progress" description={progressDesc} activePage="progress">
+  <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight my-6 bg-gradient-to-br from-ar-amber to-ar-red bg-clip-text text-transparent [-webkit-text-fill-color:transparent]">Research Progress</h1>
+
+  <div class="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-4 my-8">
+    <div class="glass-card rounded-2xl p-5 text-center"><div class="text-4xl font-extrabold font-mono text-ar-green">{score}%</div><div class="text-dim text-xs mt-1.5 uppercase tracking-[0.1em] font-medium">Score</div></div>
+    <div class="glass-card rounded-2xl p-5 text-center"><div class="text-4xl font-extrabold font-mono">{header.tasks}</div><div class="text-dim text-xs mt-1.5 uppercase tracking-[0.1em] font-medium">Tasks</div></div>
+    <div class="glass-card rounded-2xl p-5 text-center"><div class="text-4xl font-extrabold font-mono">{header.sources}</div><div class="text-dim text-xs mt-1.5 uppercase tracking-[0.1em] font-medium">Sources</div></div>
+    <div class="glass-card rounded-2xl p-5 text-center"><div class="text-4xl font-extrabold font-mono">{status.iteration || '?'}</div><div class="text-dim text-xs mt-1.5 uppercase tracking-[0.1em] font-medium">Iterations</div></div>
+  </div>
+  <div class="bg-white/5 rounded-full overflow-hidden h-1.5 my-4"><div class="h-full bg-gradient-to-r from-ar-green to-ar-cyan rounded-full" style={`width: ${score}%`}></div></div>
+  <p class="text-dim font-mono text-[0.8rem]">{breakdown}</p>
+
+  <h2 class="text-2xl font-bold tracking-tight mt-12 mb-4 pb-2 border-b border-border">Section Completion</h2>
+  <div class="space-y-3 my-6">
+    {allStats.map(stats => (
+      <div class="glass-card rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="font-semibold text-[0.9rem]">{stats.name}</span>
+          <span class="font-mono text-[0.7rem] text-dim">{stats.words} words · {stats.citations.length} citations · {stats.readingMinutes} min</span>
+        </div>
+        <div class="bg-white/5 rounded-full overflow-hidden h-1">
+          <div class="h-full bg-gradient-to-r from-ar-green to-ar-cyan rounded-full" style={`width: ${Math.min(100, Math.round((stats.citations.length / Math.max(1, stats.words / 150)) * 100))}%`}></div>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <h2 class="text-2xl font-bold tracking-tight mt-12 mb-4 pb-2 border-b border-border">GitHub</h2>
+  <div class="flex gap-3 flex-wrap my-4">
+    <a href={`https://github.com/${config.repo}/issues?q=is%3Aissue+label%3Atask`} class="glass-card px-4 py-2.5 rounded-lg text-text-secondary no-underline text-[0.85rem] font-medium">All Tasks</a>
+    <a href={`https://github.com/${config.repo}/issues?q=is%3Aissue+is%3Aopen+label%3Aaccepted`} class="glass-card px-4 py-2.5 rounded-lg text-text-secondary no-underline text-[0.85rem] font-medium">In Progress</a>
+    <a href={`https://github.com/${config.repo}/pulls`} class="glass-card px-4 py-2.5 rounded-lg text-text-secondary no-underline text-[0.85rem] font-medium">Pull Requests</a>
+  </div>
+
+  {changelog && (
+    <>
+      <h2 class="text-2xl font-bold tracking-tight mt-12 mb-4 pb-2 border-b border-border">Changelog</h2>
+      <div class="prose" set:html={md2html(changelog)} />
+    </>
+  )}
+
+  <div class="flex gap-3 flex-wrap mt-12 pt-6 border-t border-border">
+    <a href={base} class="text-ar-blue hover:text-ar-cyan no-underline hover:underline text-[0.85rem]">&larr; Research Document</a>
+    <a href={`${base}sources/`} class="text-ar-blue hover:text-ar-cyan no-underline hover:underline text-[0.85rem]">View Sources &rarr;</a>
+  </div>
+</Layout>

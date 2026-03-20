@@ -1,0 +1,260 @@
+---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+import { getConfig } from '../lib/config';
+
+interface Props {
+  title: string;
+  description?: string;
+  activePage: 'index' | 'progress' | 'sections' | 'sources' | 'about';
+  jsonLd?: Record<string, unknown>;
+}
+
+const config = getConfig();
+const { title, description = `Autonomous research on ${config.subject}. Built by ${config.author.name}.`, activePage, jsonLd } = Astro.props;
+const rawBase = import.meta.env.BASE_URL;
+const base = rawBase.endsWith('/') ? rawBase : rawBase + '/';
+
+const navItems = [
+  { href: `${base}`, label: 'Research', key: 'index' },
+  { href: `${base}progress/`, label: 'Progress', key: 'progress' },
+  { href: `${base}sections/`, label: 'Sections', key: 'sections' },
+  { href: `${base}sources/`, label: 'Sources', key: 'sources' },
+  { href: `${base}about/`, label: 'About', key: 'about' },
+];
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`}>
+  <title>Autoresearch on {config.subject} by {config.author.name} — {title}</title>
+  <meta name="description" content={description}>
+  <meta name="author" content={`${config.author.name}, ${config.author.title} ${config.author.company}`}>
+  <link rel="canonical" href={`${config.site_url}${Astro.url.pathname}`}>
+  <meta property="og:title" content={`Autoresearch on ${config.subject} — ${title}`}>
+  <meta property="og:description" content={description}>
+  <meta property="og:type" content="website">
+  <meta property="og:url" content={`${config.site_url}${Astro.url.pathname}`}>
+  {config.image && <meta property="og:image" content={`${config.site_url}/${config.image}`} />}
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content={`Autoresearch on ${config.subject} — ${title}`}>
+  <meta name="twitter:description" content={description}>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+  <ClientRouter />
+</head>
+<body class="max-w-[920px] mx-auto px-4 py-8 sm:px-8 leading-relaxed">
+  <div class="mesh-bg" aria-hidden="true"></div>
+  <canvas id="particles" class="fixed inset-0 z-[-1] pointer-events-none" aria-hidden="true"></canvas>
+
+  <div id="progress-bar"></div>
+
+  <nav transition:name="nav" class="glass-nav flex items-center gap-1 p-2 mb-12 rounded-2xl sticky top-4 z-50 overflow-x-auto">
+    {navItems.map(item => (
+      <a
+        href={item.href}
+        class:list={[
+          'nav-link whitespace-nowrap text-text-secondary no-underline font-sans text-[0.85rem] font-medium px-4 py-2 rounded-lg transition-all duration-200',
+          'hover:text-text-primary hover:bg-white/8',
+          activePage === item.key && 'active text-text-primary bg-white/10 font-semibold',
+        ]}
+      >{item.label}</a>
+    ))}
+    <button class="theme-toggle ml-auto shrink-0 bg-white/5 border border-white/10 text-text-secondary text-[0.85rem] px-2.5 py-1.5 rounded-lg cursor-pointer transition-all hover:text-text-primary hover:bg-white/10 leading-none" id="theme-toggle" aria-label="Toggle theme">&#9790;</button>
+    <div class="search-box relative ml-1 shrink-0">
+      <input type="text" id="search-input" placeholder="Search... (⌘K)" aria-label="Search content" class="font-sans text-[0.8rem] bg-white/5 border border-white/10 text-text-primary px-3 py-1.5 rounded-lg w-[160px] outline-none transition-all focus:border-ar-amber focus:w-[220px]" />
+      <div class="search-results hidden absolute top-full mt-1.5 right-0 w-[360px] max-h-[340px] overflow-y-auto glass-panel rounded-xl shadow-2xl z-[300] p-1" id="search-results"></div>
+    </div>
+  </nav>
+
+  <main transition:animate="fade">
+    <slot />
+  </main>
+
+  <footer class="mt-16 pt-8 border-t border-white/8 text-dim text-[0.8rem] text-center">
+    <p>Built by <strong class="text-text-secondary">{config.author.name}</strong>{config.author.company && <>, {config.author.title} <a href={config.author.company_url} target="_blank" rel="noopener" class="text-text-secondary hover:text-text-primary">{config.author.company}</a></>}</p>
+    <p class="mt-1">Powered by <a href={`https://github.com/${config.repo}`} class="text-text-secondary hover:text-text-primary">Autoresearch</a> — Autonomous research with Claude</p>
+    <p class="mt-1">
+      {config.author.github && <a href={`https://github.com/${config.author.github}`} class="text-text-secondary hover:text-text-primary">GitHub</a>}
+      {config.author.company_url && <> · <a href={config.author.company_url} target="_blank" rel="noopener" class="text-text-secondary hover:text-text-primary">{config.author.company_url.replace('https://', '').replace('www.', '')}</a></>}
+    </p>
+  </footer>
+
+  <button class="back-to-top" id="back-to-top" aria-label="Back to top">&uarr;</button>
+  <div id="cite-popover" class="fixed z-[1000] glass-panel rounded-lg px-3.5 py-2.5 text-[0.8rem] leading-relaxed max-w-xs shadow-2xl pointer-events-none opacity-0 transition-all duration-150 translate-y-1"></div>
+
+  <script is:inline>
+  (function() {
+    var pb = document.getElementById('progress-bar');
+    function updateProgress() {
+      var st = window.scrollY, dh = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      pb.style.width = (dh > 0 ? (st / dh) * 100 : 0) + '%';
+    }
+    window.addEventListener('scroll', updateProgress, { passive: true });
+    updateProgress();
+
+    var toggle = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    var stored = localStorage.getItem('ar-theme');
+    if (stored) root.setAttribute('data-theme', stored);
+    function updateIcon() { toggle.innerHTML = root.getAttribute('data-theme') === 'light' ? '&#9728;' : '&#9790;'; }
+    updateIcon();
+    toggle.addEventListener('click', function() {
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      if (next === 'dark') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', next);
+      localStorage.setItem('ar-theme', next);
+      updateIcon();
+    });
+
+    var pop = document.getElementById('cite-popover');
+    var hideT = null;
+    function showPop(el) {
+      clearTimeout(hideT);
+      var num = el.textContent.replace(/[\[\]]/g, '');
+      var srcEl = null;
+      var all = document.querySelectorAll('#sources-section li, #sources-section p');
+      for (var i = 0; i < all.length; i++) {
+        if (all[i].textContent.match(new RegExp('^\\s*\\[?' + num + '\\]?[\\s.:\\-]'))) { srcEl = all[i]; break; }
+      }
+      pop.textContent = srcEl ? srcEl.textContent.substring(0, 200) : 'Source [' + num + ']';
+      pop.style.opacity = '1'; pop.style.transform = 'translateY(0)';
+      var r = el.getBoundingClientRect(), pw = pop.offsetWidth, l = r.left + r.width / 2 - pw / 2;
+      if (l < 8) l = 8; if (l + pw > window.innerWidth - 8) l = window.innerWidth - pw - 8;
+      pop.style.left = l + 'px'; pop.style.top = (r.top + window.scrollY - pop.offsetHeight - 8) + 'px';
+    }
+    function hidePop() { hideT = setTimeout(function() { pop.style.opacity = '0'; pop.style.transform = 'translateY(4px)'; }, 200); }
+    document.querySelectorAll('sup.cite').forEach(function(c) {
+      c.addEventListener('mouseenter', function() { showPop(c); });
+      c.addEventListener('mouseleave', hidePop);
+    });
+
+    var si = document.getElementById('search-input'), sr = document.getElementById('search-results'), st2 = null;
+    document.addEventListener('keydown', function(e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); si.focus(); }
+      if (e.key === 'Escape') { sr.classList.add('hidden'); si.blur(); }
+    });
+    si.addEventListener('input', function() { clearTimeout(st2); st2 = setTimeout(doSearch, 200); });
+    si.addEventListener('focus', function() { if (si.value.trim().length >= 2) doSearch(); });
+    document.addEventListener('click', function(e) { if (!e.target.closest('.search-box')) sr.classList.add('hidden'); });
+    function findSection(el) {
+      var node = el;
+      while (node && node !== document.body) {
+        if (node.id && document.querySelector('.section-bar a[href="#' + node.id + '"]')) return node.id;
+        node = node.parentElement;
+      }
+      return '';
+    }
+    function doSearch() {
+      var q = si.value.trim().toLowerCase();
+      if (q.length < 2) { sr.classList.add('hidden'); return; }
+      var els = document.querySelectorAll('.prose p, .prose li, .prose h2, .prose h3'), results = [];
+      for (var i = 0; i < els.length && results.length < 12; i++) {
+        var txt = els[i].textContent;
+        if (txt.toLowerCase().indexOf(q) !== -1) results.push({ el: els[i], text: txt.substring(0, 150), section: findSection(els[i]) });
+      }
+      sr.innerHTML = '';
+      if (!results.length) { sr.innerHTML = '<div class="px-3 py-3 text-[0.8rem] text-center" style="color:var(--color-dim)">No results</div>'; }
+      else results.forEach(function(r) {
+        var div = document.createElement('div');
+        div.className = 'px-3 py-2 text-[0.8rem] rounded-md cursor-pointer transition-colors leading-snug';
+        div.style.color = 'var(--color-text-secondary)';
+        div.onmouseenter = function() { div.style.background = 'rgba(255,255,255,0.06)'; };
+        div.onmouseleave = function() { div.style.background = ''; };
+        var label = r.section ? '<span style="color:var(--color-ar-amber);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em">' + r.section.replace(/-/g,' ') + '</span><br>' : '';
+        var esc = q.replace(/[-.*+?^$|()[\]\\]/g, '\\$&');
+        div.innerHTML = label + r.text.replace(/</g,'&lt;').replace(new RegExp('(' + esc + ')','gi'), '<mark style="background:rgba(245,158,11,0.3);color:var(--color-ar-amber);border-radius:2px;padding:0 2px">$1</mark>');
+        div.addEventListener('click', function() {
+          r.el.scrollIntoView({ behavior: 'smooth', block: 'center' }); sr.classList.add('hidden');
+          r.el.style.outline = '2px solid var(--color-ar-amber)'; setTimeout(function() { r.el.style.outline = ''; }, 2000);
+        });
+        sr.appendChild(div);
+      });
+      sr.classList.remove('hidden');
+    }
+
+    var btt = document.getElementById('back-to-top');
+    window.addEventListener('scroll', function() { btt.classList.toggle('visible', window.scrollY > 600); }, { passive: true });
+    btt.addEventListener('click', function() { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+
+    var barLinks = document.querySelectorAll('.section-bar a[href^="#"]'), sects = [];
+    barLinks.forEach(function(l) { var el = document.getElementById(l.getAttribute('href').slice(1)); if (el) sects.push({ el: el, link: l }); });
+    function updateBar() { if (!sects.length) return; var c = sects[0]; for (var i = 0; i < sects.length; i++) if (sects[i].el.getBoundingClientRect().top <= 150) c = sects[i]; barLinks.forEach(function(l) { l.classList.remove('active-section'); }); if (c) c.link.classList.add('active-section'); }
+    window.addEventListener('scroll', updateBar, { passive: true }); updateBar();
+
+    var tocLinks = document.querySelectorAll('.toc-sidebar a[href^="#"]'), tocS = [];
+    tocLinks.forEach(function(l) { var el = document.getElementById(l.getAttribute('href').slice(1)); if (el) tocS.push({ el: el, link: l }); });
+    function updateToc() { if (!tocS.length) return; var c = tocS[0]; for (var i = 0; i < tocS.length; i++) if (tocS[i].el.getBoundingClientRect().top <= 150) c = tocS[i]; tocLinks.forEach(function(l) { l.classList.remove('active'); }); if (c) c.link.classList.add('active'); }
+    window.addEventListener('scroll', updateToc, { passive: true }); updateToc();
+
+    document.querySelectorAll('.lite-youtube').forEach(function(el) {
+      el.addEventListener('click', function() {
+        var iframe = document.createElement('iframe');
+        iframe.src = 'https://www.youtube.com/embed/' + el.getAttribute('data-id') + '?autoplay=1';
+        iframe.allow = 'accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
+        iframe.allowFullscreen = true; el.innerHTML = ''; el.appendChild(iframe); el.style.cursor = 'default';
+      });
+    });
+
+    document.querySelectorAll('.heading-anchor').forEach(function(a) {
+      a.addEventListener('click', function(e) {
+        e.preventDefault();
+        navigator.clipboard.writeText(window.location.origin + window.location.pathname + a.getAttribute('href')).then(function() {
+          a.textContent = '\u2713'; setTimeout(function() { a.textContent = '#'; }, 1500);
+        });
+        document.getElementById(a.getAttribute('href').slice(1)).scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+  })();
+  </script>
+  <script is:inline>
+  (function() {
+    var canvas = document.getElementById('particles');
+    if (!canvas) return;
+    var gl = canvas.getContext('webgl2');
+    if (!gl) return;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    function resize() { canvas.width = window.innerWidth * dpr; canvas.height = window.innerHeight * dpr; canvas.style.width = window.innerWidth + 'px'; canvas.style.height = window.innerHeight + 'px'; gl.viewport(0, 0, canvas.width, canvas.height); }
+    resize(); window.addEventListener('resize', resize);
+    var NUM = 120, mouse = { x: 0.5, y: 0.5 };
+    document.addEventListener('mousemove', function(e) { mouse.x = e.clientX / window.innerWidth; mouse.y = e.clientY / window.innerHeight; });
+    var vsrc = `#version 300 es
+    uniform float u_time; uniform vec2 u_mouse; uniform vec2 u_res;
+    in vec4 a_data; in vec3 a_color; out vec3 v_color; out float v_alpha;
+    void main() {
+      float t = u_time * a_data.z;
+      float ot = a_data.w; float cx, cy;
+      if (ot < 0.33) { cx = cos(t+a_data.x)*a_data.y; cy = sin(t+a_data.x)*a_data.y; }
+      else if (ot < 0.66) { cx = sin(t+a_data.x)*a_data.y; cy = sin(2.0*t+a_data.x)*a_data.y*0.5; }
+      else { float r = a_data.y*(0.5+0.5*sin(t*0.3)); cx = cos(t+a_data.x)*r; cy = sin(t*0.7+a_data.x)*r; }
+      vec2 mP = (u_mouse-0.5)*2.0; float d = length(vec2(cx,cy)-mP); float att = 0.15/(d+0.5);
+      cx += (mP.x-cx)*att*0.3; cy += (mP.y-cy)*att*0.3;
+      gl_Position = vec4(cx/(u_res.x/u_res.y), cy, 0.0, 1.0);
+      float pulse = 0.7+0.3*sin(t*3.0+a_data.x*10.0);
+      gl_PointSize = (2.0+a_data.y*4.0)*pulse*(u_res.y/800.0);
+      v_color = a_color; v_alpha = (0.4+0.4*pulse)*smoothstep(0.0,0.1,abs(sin(t*0.5)));
+    }`;
+    var fsrc = `#version 300 es
+    precision mediump float; in vec3 v_color; in float v_alpha; out vec4 fragColor;
+    void main() { vec2 c = gl_PointCoord-0.5; float d = length(c); fragColor = vec4(v_color, exp(-d*d*8.0)*v_alpha); }`;
+    function cs(s,t) { var sh = gl.createShader(t); gl.shaderSource(sh,s); gl.compileShader(sh); return sh; }
+    var prog = gl.createProgram(); gl.attachShader(prog, cs(vsrc, gl.VERTEX_SHADER)); gl.attachShader(prog, cs(fsrc, gl.FRAGMENT_SHADER)); gl.linkProgram(prog); gl.useProgram(prog);
+    var pal = [[1,.62,.04],[.02,.71,.83],[.66,.33,.97],[.13,.77,.37],[1,1,1]];
+    var data = new Float32Array(NUM*4), colors = new Float32Array(NUM*3);
+    for (var i = 0; i < NUM; i++) { data[i*4]=Math.random()*Math.PI*2; data[i*4+1]=.1+Math.random()*.8; data[i*4+2]=.1+Math.random()*.4; data[i*4+3]=Math.random(); var c=pal[Math.floor(Math.random()*pal.length)]; colors[i*3]=c[0]; colors[i*3+1]=c[1]; colors[i*3+2]=c[2]; }
+    var db = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,db); gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);
+    var aD = gl.getAttribLocation(prog,'a_data'); gl.enableVertexAttribArray(aD); gl.vertexAttribPointer(aD,4,gl.FLOAT,false,0,0);
+    var cb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,cb); gl.bufferData(gl.ARRAY_BUFFER,colors,gl.STATIC_DRAW);
+    var aC = gl.getAttribLocation(prog,'a_color'); gl.enableVertexAttribArray(aC); gl.vertexAttribPointer(aC,3,gl.FLOAT,false,0,0);
+    var uT=gl.getUniformLocation(prog,'u_time'), uM=gl.getUniformLocation(prog,'u_mouse'), uR=gl.getUniformLocation(prog,'u_res');
+    gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+    function frame(t) { gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT); gl.uniform1f(uT,t*.001); gl.uniform2f(uM,mouse.x,1-mouse.y); gl.uniform2f(uR,canvas.width,canvas.height); gl.drawArrays(gl.POINTS,0,NUM); requestAnimationFrame(frame); }
+    requestAnimationFrame(frame);
+  })();
+  </script>
+</body>
+</html>

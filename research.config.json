@@ -1,0 +1,19 @@
+{
+  "subject": "Albert Einstein",
+  "tagline": "Theoretical physicist, Nobel laureate, and one of the most influential scientists in history.",
+  "image": "subject.jpg",
+  "accent": "amber",
+  "author": {
+    "name": "Alexandru DAN",
+    "title": "CEO & Founder",
+    "company": "TVL Tech",
+    "company_url": "https://www.tvl.tech",
+    "logo": "tvl-logo.svg",
+    "github": "danlex",
+    "email": "contact@tvl.technology"
+  },
+  "repo": "danlex/autoresearch-starter",
+  "site_url": "https://danlex.github.io/autoresearch-starter",
+  "timeline": [],
+  "videos": {}
+}
