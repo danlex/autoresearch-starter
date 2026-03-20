@@ -61,15 +61,17 @@ if [[ -f "$SCRIPT_DIR/.env" ]]; then
   source "$SCRIPT_DIR/.env"
 fi
 
-if [[ -z "${ANTHROPIC_API_KEY:-}" ]]; then
-  warn "ANTHROPIC_API_KEY not set. Set it in .env or export it."
-  printf "  Enter your API key (hidden): "
+if [[ -z "${ANTHROPIC_API_KEY:-}" ]] && [[ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]]; then
+  warn "No authentication found. Set ANTHROPIC_API_KEY or CLAUDE_CODE_OAUTH_TOKEN in .env"
+  printf "  Enter your Anthropic API key (hidden): "
   read -rsp "" ANTHROPIC_API_KEY
   echo ""
   echo "ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY" >> "$SCRIPT_DIR/.env"
   chmod 600 "$SCRIPT_DIR/.env"
   export ANTHROPIC_API_KEY
   log "API key saved to .env"
+else
+  log "Authentication found"
 fi
 
 # --- 3. Check goal.md ---
